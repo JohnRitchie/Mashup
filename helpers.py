@@ -1,6 +1,7 @@
 import feedparser
 import urllib.parse
 
+
 def lookup(geo):
     """Looks up articles for geo."""
 
