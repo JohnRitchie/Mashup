@@ -33,8 +33,12 @@ def index():
 def articles():
     """Look up articles for geo."""
 
-    # TODO
-    return jsonify([])
+    geo = request.args.get("geo")
+    if not geo:
+        raise RuntimeError("Geo not set")
+
+    items = lookup(geo)
+    return jsonify(items[:5])
 
 @app.route("/search")
 def search():
