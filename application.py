@@ -40,8 +40,10 @@ def articles():
 def search():
     """Search for places that match query."""
 
-    # TODO
-    return jsonify([])
+    q = request.args.get("q") + "%"
+    place = db.execute("SELECT * FROM places2 WHERE postal_code LIKE \
+    :q OR place_name LIKE :q OR admin_name1 LIKE :q LIMIT 0,10", q=q)
+    return jsonify(place)
 
 @app.route("/update")
 def update():
