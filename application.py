@@ -6,6 +6,10 @@ from flask_jsglue import JSGlue
 from cs50 import SQL
 from helpers import lookup
 
+# limits for places and articles
+limit_places = 10
+limit_articles = 5
+
 # configure application
 app = Flask(__name__)
 JSGlue(app)
@@ -38,15 +42,15 @@ def articles():
         raise RuntimeError("Geo not set")
 
     items = lookup(geo)
-    return jsonify(items[:5])
+    return jsonify(items[:limit_articles])
 
 @app.route("/search")
 def search():
     """Search for places that match query."""
 
     q = request.args.get("q") + "%"
-    place = db.execute("SELECT * FROM places2 WHERE postal_code LIKE \
-    :q OR place_name LIKE :q OR admin_name1 LIKE :q LIMIT 0,10", q=q)
+    place = db.execute("""SELECT * FROM places2 WHERE postal_code LIKE \
+    :q OR place_name LIKE :q OR admin_name1 LIKE :q LIMIT 0,:limit""", q=q, limit=limit_places)
     return jsonify(place)
 
 @app.route("/update")
