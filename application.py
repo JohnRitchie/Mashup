@@ -3,7 +3,7 @@ import re
 from flask import Flask, jsonify, render_template, request, url_for
 from flask_jsglue import JSGlue
 
-from cs50 import SQL
+import sqlite3
 from helpers import lookup
 
 # limits for places and articles
@@ -23,13 +23,24 @@ if app.config["DEBUG"]:
         response.headers["Pragma"] = "no-cache"
         return response
 
-# configure Library to use SQLite database
-db = SQL("sqlite:///mashup.db")
+# func to make dict via json
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
+# configure CS50 Library to use SQLite database
+con = sqlite3.connect("mashup.db")
+con.row_factory = dict_factory
+cur = con.cursor()
+
 
 @app.route("/")
 def index():
     """Render map."""
-return render_template("index.html", key="AIzaSyBnohGY_qkLeErARgTvDgJfCic6AlZCZmQ")
+    return render_template("index.html", key="AIzaSyBnohGY_qkLeErARgTvDgJfCic6AlZCZmQ")
 
 @app.route("/articles")
 def articles():
@@ -47,9 +58,10 @@ def search():
     """Search for places that match query."""
 
     q = request.args.get("q") + "%"
-    place = db.execute("""SELECT * FROM places2 WHERE postal_code LIKE \
-    :q OR place_name LIKE :q OR admin_name1 LIKE :q LIMIT 0,:limit""", q=q, limit=limit_places)
-    return jsonify(place)
+    cur.execute("""SELECT * FROM places2 WHERE postal_code LIKE \
+    :q OR place_name LIKE :q OR admin_name1 LIKE :q LIMIT 0,:limit""", {"q": q, "limit": limit_places})
+    results = cur.fetchall()
+    return jsonify(results)
 
 @app.route("/update")
 def update():
