@@ -4,7 +4,7 @@ from flask import Flask, jsonify, render_template, request, url_for
 from flask_jsglue import JSGlue
 
 import sqlite3
-from helpers import lookup
+from helpers import lookup, dict_factory
 
 # limits for places and articles
 limit_places = 10
@@ -23,15 +23,7 @@ if app.config["DEBUG"]:
         response.headers["Pragma"] = "no-cache"
         return response
 
-# func to make dict via json
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-
-# configure CS50 Library to use SQLite database
+# configure SQLite database
 con = sqlite3.connect("mashup.db")
 con.row_factory = dict_factory
 cur = con.cursor()
