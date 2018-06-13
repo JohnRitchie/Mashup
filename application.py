@@ -100,3 +100,6 @@ def update():
 
     # output places as JSON
     return jsonify(rows)
+
+if __name__ == '__main__':
+    app.run(debug=True)
