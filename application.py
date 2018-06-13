@@ -24,7 +24,7 @@ if app.config["DEBUG"]:
         return response
 
 # configure SQLite database
-con = sqlite3.connect("mashup.db")
+con = sqlite3.connect("mashup.db", check_same_thread = False)
 con.row_factory = dict_factory
 cur = con.cursor()
 
@@ -81,7 +81,7 @@ def update():
     if (sw_lng <= ne_lng):
 
         # doesn't cross the antimeridian
-        cur.execute("""SELECT * FROM places
+        cur.execute("""SELECT * FROM places2
             WHERE :sw_lat <= latitude AND latitude <= :ne_lat AND (:sw_lng <= longitude AND longitude <= :ne_lng)
             GROUP BY country_code, place_name, admin_code1
             ORDER BY RANDOM()
@@ -92,7 +92,7 @@ def update():
     else:
 
         # crosses the antimeridian
-        cur.execute("""SELECT * FROM places
+        cur.execute("""SELECT * FROM places2
             WHERE :sw_lat <= latitude AND latitude <= :ne_lat AND (:sw_lng <= longitude OR longitude <= :ne_lng)
             GROUP BY country_code, place_name, admin_code1
             ORDER BY RANDOM()
