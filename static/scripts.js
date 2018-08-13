@@ -63,7 +63,48 @@ $(function() {
  */
 function addMarker(place)
 {
-    // TODO
+    var marker = new google.maps.Marker({
+        title: place.place_name + ', ' + place.admin_name1,
+        label: place.place_name + ', ' + place.admin_name1,
+        animation: google.maps.Animation.DROP,
+        position: {lat: place.latitude, lng: place.longitude},
+        icon: {
+            url: '/static/icon.png',
+            size: new google.maps.Size(22, 40),
+            scaledSize: new google.maps.Size(22, 30),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(11, 40),
+            labelOrigin: new google.maps.Point(21, 50)
+        }
+    });
+
+    marker.setMap(map);
+    marker.addListener('click', function() {
+        showInfo(marker);
+
+        $.getJSON(Flask.url_for("articles"), {geo: place.postal_code}, function(articles) {
+
+            // Only display infowindow if articles exist
+            if (!$.isEmptyObject(articles))
+            {
+                // start Unordered List
+                var articlesContent = "<ul>";
+                for (var i = 0; i < articles.length; i++)
+                {
+                    //Each list item is stored into articlesString
+                    articlesContent += "<li><a target='_NEW' href='" + articles[i].link
+                    + "'>" + articles[i].title + "</a></li>";
+                }
+            }
+
+            // close the unordered list of articles
+            articlesContent += "</ul>";
+
+            showInfo(marker, articlesContent)
+        });
+    });
+
+    markers.push(marker);
 }
 
 /**
@@ -140,7 +181,11 @@ function configure()
  */
 function removeMarkers()
 {
-    // TODO
+    markers.forEach(function (marker) {
+        marker.setMap(null);
+    });
+
+    markers.length = 0;
 }
 
 /**
@@ -178,7 +223,7 @@ function showInfo(marker, content)
     if (typeof(content) == "undefined")
     {
         // http://www.ajaxload.info/
-        div += "<img alt='loading' src='/static/ajax-loader.gif'/>";
+        div += "<img alt='loading' src='/static/ajax-loader2.gif'/>";
     }
     else
     {
